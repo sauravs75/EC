@@ -1,6 +1,16 @@
 const express = require("express");
 const router =express.Router();
 const products = require("../model/product");
+const {getproducts} = require("../controller/productcontroller");
+const {postproducts} = require("../controller/productcontroller");
+const {deleteproducts} = require("../controller/productcontroller");
+const {updateproducts} = require("../controller/productcontroller");    
+router.get("/",getproducts);
+router.post("/",postproducts);
+router.delete("/:id",deleteproducts);
+router.put("/:id",updateproducts);
+
+
 // const products=[
 //     {
 //         id:1,
@@ -18,26 +28,26 @@ const products = require("../model/product");
 //         price:50000
 //     }
 // ];
-router.get("/",async (req,res)=>{
-    try{
-        const  Products = await products.find();// YAHA pe products ka model use kiya hai OR AKE PRODUCTS collection se data fetch kiya hai islia capital P use kiya hai
-        res.status(200).json(Products);
-    }catch(error){
-        res.status(500).json({error:"internal server error"});
-    }
-});
+// router.get("/",async (req,res)=>{
+//     try{
+//         const  Products = await products.find();// YAHA pe products ka model use kiya hai OR AKE PRODUCTS collection se data fetch kiya hai islia capital P use kiya hai
+//         res.status(200).json(Products);
+//     }catch(error){
+//         res.status(500).json({error:"internal server error"});
+//     }
+// });
 
-router.post("/",async (req,res)=>{
-    try{
-        const  newProduct = await products.create(req.body);
+// router.post("/",async (req,res)=>{
+//     try{
+//         const  newProduct = await products.create(req.body);
    
-    res.status(201).json(newProduct);
-}catch(error){
-    res.status(500).json({
-        error:"internal server error"
-    });
-}
-});
+//     res.status(201).json(newProduct);
+// }catch(error){
+//     res.status(500).json({
+//         error:"internal server error"
+//     });
+// }
+// });
 // router.delete("/:id",(req,res)=>{
 //     try{
 //     const id=Number(req.params.id);
@@ -75,36 +85,36 @@ router.post("/",async (req,res)=>{
 
 // }
 // });
-router.delete("/:id",async(req,res)=>{
-    try{
-        const deletedProduct= await products.findByIdAndDelete(req.params.id);
-        if(!deletedProduct){
-            return res.status(404).json({error:"product not found"});
-        }
-        res.status(200).json(deletedProduct);
-    }catch(error){
-        res.status(500).json({
-            error:"internal server error"
-        });
-    }
-});
-router.put("/:id",async(req,res)=>{
-    try{
-        const updateProduct= await products.findByIdAndUpdate( 
-        req.params.id,
-        req.body,
-        {
-            new:true, 
-        }
-    );
-    if(!updateProduct){
-        return res.status(404).json({error:"product not found"});
-    }
-    res.status(200).json(updateProduct);
-}catch(error){
-    res.status(500).json({
-        error:"internal server error"
-    });
-}
-});
+// router.delete("/:id",async(req,res)=>{
+//     try{
+//         const deletedProduct= await products.findByIdAndDelete(req.params.id);
+//         if(!deletedProduct){
+//             return res.status(404).json({error:"product not found"});
+//         }
+//         res.status(200).json(deletedProduct);
+//     }catch(error){
+//         res.status(500).json({
+//             error:"internal server error"
+//         });
+//     }
+// });
+// router.put("/:id",async(req,res)=>{
+//     try{
+//         const updateProduct= await products.findByIdAndUpdate( 
+//         req.params.id,
+//         req.body,
+//         {
+//             new:true, 
+//         }
+//     );
+//     if(!updateProduct){
+//         return res.status(404).json({error:"product not found"});
+//     }
+//     res.status(200).json(updateProduct);
+// }catch(error){
+//     res.status(500).json({
+//         error:"internal server error"
+//     });
+// }
+// });
 module.exports=router;

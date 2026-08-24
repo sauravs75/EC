@@ -1,11 +1,14 @@
 const express = require("express");
 const cors = require("cors");
 const mongoose=require("mongoose");
+const errorHandler = require("./middleware/errorHandler");
 require("dotenv").config();
 const app= express();
 const PORT = 5000;
 app.use(cors());
 app.use(express.json());
+
+
 //mongoose connection
 
 mongoose.connect(process.env.MONGO_URI)
@@ -103,5 +106,7 @@ app.use("/api/products",Productroutes);
 // }
 // });
 app.get("/",(req,res)=>{res.send('backend server is running')});
+app.use(errorHandler); // isko route kai badth rakhna hai
+
 app.listen(PORT,()=>{console.log(`server is running on the port ${PORT}`)});
 
