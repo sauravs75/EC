@@ -7,6 +7,8 @@ import {
   deleteProducts,
   updateProducts
 }from "./services/productServices";
+import productcard from"./component/productcard";
+
 
 function App() {
   const [products, setProducts] = useState([]);
@@ -128,7 +130,7 @@ const handleDeleteProducts= (id)=>{
         }}>Save</button>
       )}
       <div className="products">
-        {products.map((products) => {
+        {/* {products.map((products) => {
           return (
             <div className="product-card" key={products._id}>
               <h2>{products.name}</h2>
@@ -145,7 +147,20 @@ const handleDeleteProducts= (id)=>{
 
             </div>
           );
-        })}
+        })} */}
+
+        {products.map((product)=>(
+          <productcard 
+          key ={product._id}
+          product ={product}
+          onDelete={handleDeleteProducts}
+          onUpdate={(product)=>{
+            setname(product.name);
+            setprice(product.price);
+            seteditid(product._id);
+          }}
+          />
+        ))};
       </div>
     </div>
 
