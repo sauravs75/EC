@@ -1,4 +1,4 @@
-function productcard({
+function ProductCard({
     product,
     onDelete,
     onUpdate
@@ -14,4 +14,4 @@ function productcard({
         </div>
     );
 }
-export default productcard;
+export default ProductCard;
