@@ -1,6 +1,6 @@
 import ProductList from "../component/productlist";
 function Products({
-    products,onDelete,onUpdate
+    products,onDelete,onUpdate,onAddToCart
 }){
     return(
         <div >
@@ -9,6 +9,7 @@ function Products({
         products={products}
         onDelete={onDelete}
         onUpdate={onUpdate}
+        onAddToCart={onAddToCart}
         />
         </div>
     );

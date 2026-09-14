@@ -1,15 +1,17 @@
 function ProductCard({
     product,
     onDelete,
-    onUpdate
+    onUpdate,
+    onAddToCart
 }) {
     return (
         <div className="product-card">
-            <h2>{product.name }</h2>
+            <h2>{product.name}</h2>
             <p>${product.price}</p>
-            <button>Add to Cart</button>
-            <button onClick={()=> onDelete(product._id )}>Delete</button>
-            <button onClick={()=>onUpdate(product)}>Update</button>
+            <button onClick={() => onAddToCart(product)}>Add to Cart</button>
+            <button onClick={() => onDelete(product._id)}>Delete</button>
+            <button onClick={() => onUpdate(product)}>Update</button>
+
 
         </div>
     );

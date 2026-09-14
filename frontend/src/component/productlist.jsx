@@ -1,5 +1,5 @@
 import ProductCard from "./productcard";
-function ProductList({ products,onDelete,onUpdate}){
+function ProductList({ products,onDelete,onUpdate,onAddToCart }){
     return (
         <div className="products">
             {products.map((product)=>(
@@ -8,6 +8,7 @@ function ProductList({ products,onDelete,onUpdate}){
                 product={product}
                 onDelete={onDelete}
                 onUpdate={onUpdate}
+                onAddToCart={onAddToCart}
                 />
             ))}
         </div>
