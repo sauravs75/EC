@@ -12,12 +12,14 @@ import {
 
 function App() {
   const [products, setProducts] = useState([]);
+  const [search, setSearch] = useState("");
   const [name, setname] = useState("");
   const [price, setprice] = useState("");
   const [editid, seteditid] = useState(null);
   const [Loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [formError, setFormError] = useState("");
+  
 
   // ADDED: Cart state
   const [cart, setCart] = useState([]);
@@ -176,14 +178,30 @@ function App() {
               ? { ...product, ...data }
               : product
           )
+
+
         );
       });
   };
+
+
+
+const filteredProducts = products.filter((product) =>
+  product.name.toLowerCase().includes(search.toLowerCase())
+);
 
   return (
     <div className="app">
 
       <h1>EC</h1>
+      <div className ="search-box">
+        <input
+        type ="text"
+        placeholder="search Products"
+        value={search}
+        onChange={(e)=> setSearch(e.target.value)}
+        />
+      </div>
 
       {/* ADDED: Cart section */}
       <div className="cart-section">
@@ -339,7 +357,7 @@ function App() {
 
       ) : (
         <Products
-          products={products}
+          products={filteredProducts}
           onDelete={handleDeleteProducts}
 
           onUpdate={(product) => {
