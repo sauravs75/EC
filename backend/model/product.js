@@ -30,6 +30,11 @@ const productSchema = new mongoose.Schema({
         type:Number,
         required:true,
         min:0
+    },
+    category: {
+        type: String,
+        required: true,
+        trim: true
     }
 });
 const Products = mongoose.model("Products",productSchema);

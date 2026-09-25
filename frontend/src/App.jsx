@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import "./App.css";
 
@@ -13,17 +14,21 @@ import {
 function App() {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [sort, setSort] = useState("default");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
   const [name, setname] = useState("");
   const [price, setprice] = useState("");
+  const [category, setCategory] = useState("");
   const [editid, seteditid] = useState(null);
   const [Loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [formError, setFormError] = useState("");
-  
 
-  // ADDED: Cart state
   const [cart, setCart] = useState([]);
 
+  // Get all products
   useEffect(() => {
     getProducts()
       .then((data) => {
@@ -37,6 +42,7 @@ function App() {
       });
   }, []);
 
+  // Add Product
   const addProducts = () => {
     if (name.trim() === "") {
       setFormError("Product name is required.");
@@ -53,11 +59,17 @@ function App() {
       return;
     }
 
+    if (category === "") {
+      setFormError("Product category is required.");
+      return;
+    }
+
     setFormError("");
 
     const product = {
       name: name,
-      price: Number(price)
+      price: Number(price),
+      category: category
     };
 
     createProducts(product)
@@ -65,18 +77,17 @@ function App() {
         setProducts([...products, data]);
         setname("");
         setprice("");
+        setCategory("");
       });
   };
 
-  // EDITED: Same product ki maximum quantity 25
+  // Add product to cart
   const addToCart = (product) => {
     const existingProduct = cart.find(
       (item) => item._id === product._id
     );
 
     if (existingProduct) {
-
-      // ADDED: 25 ke baad quantity increase nahi hogi
       if (existingProduct.quantity >= 25) {
         return;
       }
@@ -85,9 +96,9 @@ function App() {
         cart.map((item) =>
           item._id === product._id
             ? {
-                ...item,
-                quantity: item.quantity + 1
-              }
+              ...item,
+              quantity: item.quantity + 1
+            }
             : item
         )
       );
@@ -102,52 +113,52 @@ function App() {
     }
   };
 
-  // Function to remove a product from the cart
+  // Remove product from cart
   const removeFromCart = (id) => {
     setCart(
       cart.filter((product) => product._id !== id)
     );
   };
 
-  // ADDED: Clear complete cart
+  // Clear complete cart
   const clearCart = () => {
     setCart([]);
   };
 
-  // EDITED: Same product ki maximum quantity 25
+  // Increase quantity
   const increaseQuantity = (id) => {
     setCart(
       cart.map((product) =>
         product._id === id
           ? {
-              ...product,
-              quantity:
-                product.quantity < 25
-                  ? product.quantity + 1
-                  : 25
-            }
+            ...product,
+            quantity:
+              product.quantity < 25
+                ? product.quantity + 1
+                : 25
+          }
           : product
       )
     );
   };
 
-  // ADDED: Quantity decrease karne ke liye
-  // EDITED: Quantity 1 se neeche nahi jayegi
+  // Decrease quantity
   const decreaseQuantity = (id) => {
     setCart(
       cart
         .map((product) =>
           product._id === id
             ? {
-                ...product,
-                quantity: product.quantity - 1
-              }
+              ...product,
+              quantity: product.quantity - 1
+            }
             : product
         )
         .filter((product) => product.quantity > 0)
     );
   };
 
+  // Delete Product
   const handleDeleteProducts = (id) => {
     deleteProducts(id)
       .then(() => {
@@ -157,6 +168,7 @@ function App() {
       });
   };
 
+  // Update Product
   const handleUpdateProducts = (id, updatedProduct) => {
     if (updatedProduct.name.trim() === "") {
       setFormError("Product name is required.");
@@ -165,6 +177,11 @@ function App() {
 
     if (updatedProduct.price <= 0) {
       setFormError("Price must be greater than 0.");
+      return;
+    }
+
+    if (updatedProduct.category === "") {
+      setFormError("Product category is required.");
       return;
     }
 
@@ -178,39 +195,109 @@ function App() {
               ? { ...product, ...data }
               : product
           )
-
-
         );
       });
   };
 
+  // Search + Category Filter
+  const filteredProducts = products
+    .filter((product) => {
+      const matchesSearch = product.name
+        .toLowerCase()
+        .includes(search.toLowerCase());
 
+      const matchesCategory =
+        selectedCategory === "All" ||
+        product.category === selectedCategory;
 
-const filteredProducts = products.filter((product) =>
-  product.name.toLowerCase().includes(search.toLowerCase())
-);
+      const matchesPrice =
+        (minPrice === "" || product.price >= Number(minPrice)) &&
+        (maxPrice === "" || product.price <= Number(maxPrice));
+
+      return matchesSearch && matchesCategory && matchesPrice;
+    })
+    .sort((a, b) => {
+      if (sort === "lowToHigh") {
+        return a.price - b.price;
+      }
+
+      if (sort === "highToLow") {
+        return b.price - a.price;
+      }
+
+      return 0;
+    });
 
   return (
     <div className="app">
 
       <h1>EC</h1>
-      <div className ="search-box">
+
+      {/* Search */}
+      <div className="search-box">
         <input
-        type ="text"
-        placeholder="search Products"
-        value={search}
-        onChange={(e)=> setSearch(e.target.value)}
+          type="text"
+          placeholder="Search Products"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
         />
       </div>
 
-      {/* ADDED: Cart section */}
+      {/* Category Filter */}
+      <div className="category-filter">
+        <label>Filter by Category</label>
+
+        <select
+          value={selectedCategory}
+          onChange={(e) =>
+            setSelectedCategory(e.target.value)
+          }
+        >
+          <option value="All">All</option>
+          <option value="Mobile">Mobile</option>
+          <option value="Laptop">Laptop</option>
+          <option value="TV">TV</option>
+        </select>
+      </div>
+
+      <div className="sort-filter">
+        <label>Sort By</label>
+
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value)}
+        >
+          <option value="default">Default</option>
+          <option value="lowToHigh">Price: Low to High</option>
+          <option value="highToLow">Price: High to Low</option>
+        </select>
+      </div>
+
+      <div className="price-filter">
+        <label>Price Range</label>
+
+        <input
+          type="number"
+          placeholder="Min Price"
+          value={minPrice}
+          onChange={(e) => setMinPrice(e.target.value)}
+        />
+
+        <input
+          type="number"
+          placeholder="Max Price"
+          value={maxPrice}
+          onChange={(e) => setMaxPrice(e.target.value)}
+        />
+      </div>
+
+      {/* Cart */}
       <div className="cart-section">
 
         <h2>🛒 Cart: {cart.length}</h2>
 
         {cart.length > 0 ? (
           cart.map((product) => (
-
             <div
               className="cart-item"
               key={product._id}
@@ -220,12 +307,10 @@ const filteredProducts = products.filter((product) =>
                 {product.name} - ₹{product.price}
               </p>
 
-              {/* ADDED: Quantity show karne ke liye */}
               <p>
                 Quantity: {product.quantity}
               </p>
 
-              {/* ADDED: Quantity decrease button */}
               <button
                 onClick={() =>
                   decreaseQuantity(product._id)
@@ -234,7 +319,6 @@ const filteredProducts = products.filter((product) =>
                 -
               </button>
 
-              {/* ADDED: Quantity increase button */}
               <button
                 onClick={() =>
                   increaseQuantity(product._id)
@@ -253,14 +337,11 @@ const filteredProducts = products.filter((product) =>
 
             </div>
           ))
-
         ) : (
-
           <p>Cart is empty</p>
-
         )}
 
-        {/* EDITED: Total mein quantity bhi calculate hogi */}
+        {/* Cart Total */}
         {cart.length > 0 && (
           <h3>
             Total: ₹
@@ -273,7 +354,7 @@ const filteredProducts = products.filter((product) =>
           </h3>
         )}
 
-        {/* ADDED: Clear Cart button */}
+        {/* Clear Cart */}
         {cart.length > 0 && (
           <button onClick={clearCart}>
             Clear Cart
@@ -282,6 +363,7 @@ const filteredProducts = products.filter((product) =>
 
       </div>
 
+      {/* Product Form */}
       <div className="product-form">
 
         <label>Product Name</label>
@@ -302,29 +384,58 @@ const filteredProducts = products.filter((product) =>
           onChange={(e) => setprice(e.target.value)}
         />
 
+        <label>Product Category</label>
+
+        <select
+          value={category}
+          onChange={(e) =>
+            setCategory(e.target.value)
+          }
+        >
+          <option value="">
+            Select Category
+          </option>
+
+          <option value="Mobile">
+            Mobile
+          </option>
+
+          <option value="Laptop">
+            Laptop
+          </option>
+
+          <option value="TV">
+            TV
+          </option>
+        </select>
+
         {formError && (
           <p className="form-error">
             {formError}
           </p>
         )}
 
+        {/* Add Button */}
         {editid == null && (
           <button onClick={addProducts}>
             Add Product
           </button>
         )}
 
+        {/* Update Mode */}
         {editid != null && (
           <>
             <button
               onClick={() => {
                 handleUpdateProducts(editid, {
                   name: name,
-                  price: Number(price)
+                  price: Number(price),
+                  category: category
                 });
 
                 setname("");
                 setprice("");
+                setCategory("");
                 seteditid(null);
               }}
             >
@@ -335,6 +446,7 @@ const filteredProducts = products.filter((product) =>
               onClick={() => {
                 setname("");
                 setprice("");
+                setCategory("");
                 seteditid(null);
                 setFormError("");
               }}
@@ -346,6 +458,7 @@ const filteredProducts = products.filter((product) =>
 
       </div>
 
+      {/* Products */}
       {Loading ? (
         <p>Product Loading...</p>
 
@@ -363,6 +476,7 @@ const filteredProducts = products.filter((product) =>
           onUpdate={(product) => {
             setname(product.name);
             setprice(product.price);
+            setCategory(product.category);
             seteditid(product._id);
             setFormError("");
           }}
@@ -376,3 +490,5 @@ const filteredProducts = products.filter((product) =>
 }
 
 export default App;
+
+
