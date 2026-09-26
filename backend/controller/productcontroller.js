@@ -2,7 +2,25 @@ const products = require("../model/product");
 
 const getproducts = async (req, res,next) => {
     try {
-        const Products = await products.find();
+        
+        const category = req.query.category;
+const search = req.query.search;
+
+const filter = {};
+
+if (category) {
+  filter.category = category;
+}
+
+if (search) {
+  filter.name = {
+    $regex: search,
+    $options: "i"
+  };
+}
+
+const Products = await products.find(filter);
+
         res.status(200).json(Products);
     } catch (error) {
         next(error);
